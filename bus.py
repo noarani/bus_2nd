@@ -1,3 +1,5 @@
+import discord
+from discord import app_commands
 from dotenv import load_dotenv
 import os
 from selenium import webdriver
@@ -15,69 +17,86 @@ id = os.getenv('ID')
 pw = os.getenv('PW')
 downloadplace = os.getenv('DOWNLOAD_PLACE')
 imageplace = os.getenv('IMAGE_PLACE')
-driver = webdriver.Chrome()
-
-#options = webdriver.ChromeOptions()
-#options.add_experimental_option("prefs", {
-#    "download.default_directory": os.path.join(os.getcwd(), downloadplace),  # ダウンロード先のフォルダ
-#    "plugins.always_open_pdf_externally": True                               # PDFをブラウザのビューワーで開かせない
-#})
 
 
-driver.get('https://portal.mc.chitose.ac.jp/portal/?0')
+load_dotenv('.env')
+TOKEN = os.getenv('DISCORD_TOKEN')
 
-idin = driver.find_element(By.XPATH, "//*[@id=\"userID\"]")
-pwin = driver.find_element(By.XPATH, "//*[@id=\"password\"]")
+def get_bus_info():
+    driver = webdriver.Chrome()
+    driver.get('https://portal.mc.chitose.ac.jp/portal/?0')
 
-idin.send_keys(id)
-pwin.send_keys(pw)
+    idin = driver.find_element(By.XPATH, "//*[@id=\"userID\"]")
+    pwin = driver.find_element(By.XPATH, "//*[@id=\"password\"]")
 
-driver.find_element(By.XPATH, "/html/body/div/div[4]/form/div[3]/div/input").click()#login
+    idin.send_keys(id)
+    pwin.send_keys(pw)
 
-wait = WebDriverWait(driver, 10)
-wait.until(EC.presence_of_all_elements_located)
+    driver.find_element(By.XPATH, "/html/body/div/div[4]/form/div[3]/div/input").click()#login
 
-notificationbtn = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div[1]/div/div/div/div/dl[1]/dd/a/span")
-notificationbtn.click()#未読連絡開く//ok
+    wait = WebDriverWait(driver, 10)
+    wait.until(EC.presence_of_all_elements_located)
 
-wait.until(EC.presence_of_all_elements_located)
+    notificationbtn = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div[1]/div/div/div/div/dl[1]/dd/a/span")
+    notificationbtn.click()#未読連絡開く//ok
 
-try:
-    driver.find_element(By.PARTIAL_LINK_TEXT, "シャトルバスダイヤについて").click()#「シャトルバスダイヤについて」の連絡を開く
-    wait.until(EC.presence_of_all_elements_located((By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")))
+    wait.until(EC.presence_of_all_elements_located)
 
-    delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
-    # 一致したファイルをすべて削除
-    for file in delfiles:
-        os.remove(file)#古いpdfファイルを削除
-    for file in os.scandir(imageplace):
-        os.remove(file.path)#古いimageファイルを削除
+    try:
+        driver.find_element(By.PARTIAL_LINK_TEXT, "シャトルバスダイヤについて").click()#「シャトルバスダイヤについて」の連絡を開く
+        wait.until(EC.presence_of_all_elements_located((By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")))
 
-    bustimepdf = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")
-    bustimepdf.click()#download
-    time.sleep(10)
-    driver.quit()
-    print('Downloaded new bus notification')
+        delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+        # 一致したファイルをすべて削除
+        for file in delfiles:
+            os.remove(file)#古いpdfファイルを削除
+        for file in os.scandir(imageplace):
+            os.remove(file.path)#古いimageファイルを削除
 
-    # PDF to Image
-    pdf_files = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
-    img_dir=Path(imageplace)
-    for pdf_path in pdf_files:
-        pages = convert_from_path(pdf_path, dpi=150)
-    
-    file_name = "シャトルバス時刻表" + ".jpeg"
-    image_path = img_dir / file_name
-    pages[0].save(str(image_path), "JPEG")
-    print('Converted PDF to Image')
-    
+        bustimepdf = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")
+        bustimepdf.click()#download
+        time.sleep(10)
+        driver.quit()
+        print('Downloaded new bus notification')
 
-except NoSuchElementException:
-    # 要素が見つからない場合の処理(すでにダウンロード済み、画像もあるはず)
-    print('Undefinde new bus notification')
-    driver.quit()
+        # PDF to Image
+        pdf_files = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+        img_dir=Path(imageplace)
+        for pdf_path in pdf_files:
+            pages = convert_from_path(pdf_path, dpi=150)
 
-#この時点で画像できてる//ok
+        file_name = "シャトルバス時刻表" + ".jpeg"
+        image_path = img_dir / file_name
+        pages[0].save(str(image_path), "JPEG")
+        print('Converted PDF to Image')
 
+
+    except NoSuchElementException:
+        # 要素が見つからない場合の処理(すでにダウンロード済み、画像もあるはず)
+        print('Undefinde new bus notification')
+        driver.quit()
+
+    #この時点で画像できてる//ok
+    return image_path
+
+intents = discord.Intents.all()
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
+
+@client.event
+async def on_ready():
+    print("rdy")
+    await tree.sync()#スラッシュコマンドを同期
+
+@tree.command(name="bus",description="bus-scheduleを表示します")
+async def bus_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="バス時刻表")
+    fname = "シャトルバス時刻表.jpeg"
+    file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
+    embed.set_image(url = "attachment://" + fname)
+    await interaction.response.send_message(embed=embed)
+
+client.run(TOKEN)
 
 
 
