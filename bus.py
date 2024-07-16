@@ -8,6 +8,13 @@ import time
 
 driver = webdriver.Chrome()
 
+options = webdriver.ChromeOptions()
+options.add_experimental_option("prefs", {
+    "download.default_directory":os.getcwd()+"D:\\Prmn2023\\tools\\bus\\pdf", #ダウンロード先のフォルダ
+    "plugins.always_open_pdf_externally": True              #PDFをブラウザのビューワーで開かせない
+})
+
+
 load_dotenv('.env')
 id = os.getenv('ID')
 pw = os.getenv('PW')
