@@ -5,19 +5,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import time
+import pathlib
+
+load_dotenv('.env')
+id = os.getenv('ID')
+pw = os.getenv('PW')
+downloadplace = os.getenv('DOWNLOAD_PLACE')
 
 driver = webdriver.Chrome()
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option("prefs", {
-    "download.default_directory":os.getcwd()+"D:\\Prmn2023\\tools\\bus\\pdf", #ダウンロード先のフォルダ
+    "download.default_directory":os.getcwd()+downloadplace, #ダウンロード先のフォルダ
     "plugins.always_open_pdf_externally": True              #PDFをブラウザのビューワーで開かせない
 })
-
-
-load_dotenv('.env')
-id = os.getenv('ID')
-pw = os.getenv('PW')
 
 
 driver.get('https://portal.mc.chitose.ac.jp/portal/?0')
@@ -48,11 +49,13 @@ for element in elements:
         has_bus_notification = True
         break
 if not has_bus_notification:
-    print('No bus notification')
+    print('No new bus notification')
     driver.quit()
     exit()
 
 wait.until(EC.presence_of_all_elements_located)
+
+
 
 bustime = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")
 bustime.click()
