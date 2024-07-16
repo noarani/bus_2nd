@@ -94,7 +94,7 @@ async def bus_command(interaction: discord.Interaction):
     fname = "シャトルバス時刻表.jpeg"
     file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
     embed.set_image(url = "attachment://" + fname)
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(file=file,embed=embed)
 
 client.run(TOKEN)
 
