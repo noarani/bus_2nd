@@ -24,6 +24,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 def get_bus_info():
     driver = webdriver.Chrome()
+    driver.minimize_window()
     driver.get('https://portal.mc.chitose.ac.jp/portal/?0')
 
     idin = driver.find_element(By.XPATH, "//*[@id=\"userID\"]")
@@ -75,6 +76,7 @@ def get_bus_info():
         # 要素が見つからない場合の処理(すでにダウンロード済み、画像もあるはず)
         print('Undefinde new bus notification')
         driver.quit()
+        image_path = Path(imageplace)/"シャトルバス時刻表.jpeg"
 
     #この時点で画像できてる//ok
     return image_path
@@ -92,9 +94,10 @@ async def on_ready():
 async def bus_command(interaction: discord.Interaction):
     embed = discord.Embed(title="バス時刻表")
     fname = "シャトルバス時刻表.jpeg"
+    await interaction.response.defer()
     file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
     embed.set_image(url = "attachment://" + fname)
-    await interaction.response.send_message(file=file,embed=embed)
+    await interaction.followup.send(file=file,embed=embed)
 
 client.run(TOKEN)
 
