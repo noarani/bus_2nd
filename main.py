@@ -29,6 +29,7 @@ def get_bus_info():
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_experimental_option("prefs", {"download.default_directory": downloadplace, "download.prompt_for_download": False,  # ダウンロード時の確認ダイアログを表示しない
     "download.directory_upgrade": True,  # ダウンロードディレクトリの設定を有効化
     "plugins.always_open_pdf_externally": True  # PDF ファイルをブラウザで開かずに直接ダウンロードする
@@ -105,10 +106,10 @@ async def on_ready():
 async def bus_command(interaction: discord.Interaction):
     embed = discord.Embed(title="バス時刻表")
     fname = "シャトルバス時刻表.jpeg"
-    channel = interaction.channel
+    await interaction.response.defer()
     file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
     embed.set_image(url = "attachment://" + fname)
-    await channel.send(embed=embed)
+    await interaction.followup.send(embed = embed, file = file)
 
 keep_alive.keep_alive()
 client.run(TOKEN)
