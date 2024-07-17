@@ -13,6 +13,7 @@ from pathlib import Path
 import time
 from pdf2image import convert_from_path
 import glob
+import keep_alive
 
 load_dotenv('.env')
 id = os.getenv('ID')
@@ -106,6 +107,7 @@ async def bus_command(interaction: discord.Interaction):
     embed.set_image(url = "attachment://" + fname)
     await interaction.followup.send(file=file,embed=embed)
 
+keep_alive.keep_alive()
 client.run(TOKEN)
 
 
