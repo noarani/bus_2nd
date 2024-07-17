@@ -102,10 +102,10 @@ async def on_ready():
 async def bus_command(interaction: discord.Interaction):
     embed = discord.Embed(title="バス時刻表")
     fname = "シャトルバス時刻表.jpeg"
-    await interaction.response.defer()
+    channel = interaction.channel
     file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
     embed.set_image(url = "attachment://" + fname)
-    await interaction.followup.send(file=file,embed=embed)
+    await channel.send(embed=embed)
 
 keep_alive.keep_alive()
 client.run(TOKEN)
