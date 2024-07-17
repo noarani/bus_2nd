@@ -3,9 +3,11 @@ from discord import app_commands
 from dotenv import load_dotenv
 import os
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
 from pathlib import Path
 import time
@@ -15,15 +17,20 @@ import glob
 load_dotenv('.env')
 id = os.getenv('ID')
 pw = os.getenv('PW')
-downloadplace = os.getenv('DOWNLOAD_PLACE')
-imageplace = os.getenv('IMAGE_PLACE')
+downloadplace = str(Path(os.getenv('DOWNLOAD_PLACE')).resolve())#相対パスを絶対パスに変換
+imageplace = str(Path(os.getenv('IMAGE_PLACE')).resolve())#相対パスを絶対パスに変換
 
-
-load_dotenv('.env')
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 def get_bus_info():
-    driver = webdriver.Chrome()
+
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("prefs", {"download.default_directory": downloadplace, "download.prompt_for_download": False,  # ダウンロード時の確認ダイアログを表示しない
+    "download.directory_upgrade": True,  # ダウンロードディレクトリの設定を有効化
+    "plugins.always_open_pdf_externally": True  # PDF ファイルをブラウザで開かずに直接ダウンロードする
+    })
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
     driver.minimize_window()
     driver.get('https://portal.mc.chitose.ac.jp/portal/?0')
 
