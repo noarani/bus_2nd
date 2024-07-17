@@ -3,4 +3,4 @@ Flask==3.0.3
 pdf2image==1.17.0
 python-dotenv==1.0.1
 selenium==4.22.0
-gunicorn==20.1.0
+webdriver_manager==4.0.1
