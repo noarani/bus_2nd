@@ -104,28 +104,28 @@ tree = app_commands.CommandTree(client)
 async def on_ready():
     loop.start()
     print("rdy")
-    await tree.sync()#スラッシュコマンドを同期
 
 @tasks.loop(hours=24)
-async def loop(interaction: discord.Interaction):
+async def loop():
     now = datetime.now(ZoneInfo("Asia/Tokyo"))
     if now.weekday()==5:
-        embed = discord.Embed()
-        fname = "シャトルバス時刻表.jpeg"
-        await interaction.response.defer()
-        file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
-        embed.set_image(url = "attachment://" + fname)
-        await interaction.followup.send(embed = embed, file = file)
+        for guild in client.guilds:
+            channel = discord.utils.get(guild.channels, name="バス")
+            if channel:
+                try:
+                    last_message = await channel.fetch_message(channel.last_message_id)
+                    try:
+                        await last_message.delete()
+                        embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
+                        fname = "シャトルバス時刻表.jpeg"
+                        file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
+                        embed.set_image(url = "attachment://" + fname)
+                        await channel.send(file = file,embed = embed)
+                    except Exception as e:
+                        print(f"Error in guild {guild.name}: {e}")
+                except Exception as e:
+                    print(f"Error in guild {guild.name}: {e}")
 
-
-@tree.command(name="bus",description="bus-scheduleを表示します")
-async def bus_command(interaction: discord.Interaction):
-    embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
-    fname = "シャトルバス時刻表.jpeg"
-    await interaction.response.defer()
-    file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
-    embed.set_image(url = "attachment://" + fname)
-    await interaction.followup.send(embed = embed, file = file)
 
 keep_alive.keep_alive()
 client.run(TOKEN)
