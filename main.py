@@ -1,7 +1,10 @@
 import discord
 from discord import app_commands
+from discord.ext import tasks
 from dotenv import load_dotenv
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
@@ -99,12 +102,25 @@ tree = app_commands.CommandTree(client)
 
 @client.event
 async def on_ready():
+    loop.start()
     print("rdy")
     await tree.sync()#スラッシュコマンドを同期
 
+@tasks.loop(seconds=60)
+async def loop(interaction: discord.Interaction):
+    now = datetime.now(ZoneInfo("Asia/Tokyo"))
+    if now.weekday()==5:
+        embed = discord.Embed()
+        fname = "シャトルバス時刻表.jpeg"
+        await interaction.response.defer()
+        file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
+        embed.set_image(url = "attachment://" + fname)
+        await interaction.followup.send(embed = embed, file = file)
+
+
 @tree.command(name="bus",description="bus-scheduleを表示します")
 async def bus_command(interaction: discord.Interaction):
-    embed = discord.Embed(title="バス時刻表")
+    embed = discord.Embed()
     fname = "シャトルバス時刻表.jpeg"
     await interaction.response.defer()
     file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
