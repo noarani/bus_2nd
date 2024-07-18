@@ -106,7 +106,7 @@ async def on_ready():
     print("rdy")
     await tree.sync()#スラッシュコマンドを同期
 
-@tasks.loop(seconds=60)
+@tasks.loop(hours=24)
 async def loop(interaction: discord.Interaction):
     now = datetime.now(ZoneInfo("Asia/Tokyo"))
     if now.weekday()==5:
