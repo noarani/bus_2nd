@@ -108,7 +108,7 @@ async def on_ready():
 @tasks.loop(hours=24)
 async def loop():
     now = datetime.now(ZoneInfo("Asia/Tokyo"))
-    if now.weekday()==5:
+    if now.weekday()==6:
         for guild in client.guilds:
             channel = discord.utils.get(guild.channels, name="バス")
             if channel:
