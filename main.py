@@ -81,20 +81,23 @@ def get_bus_info():
         for pdf_path in pdf_files:
             pages = convert_from_path(pdf_path, dpi=150)
 
-        file_name = "シャトルバス時刻表" + ".jpeg"
+        file_name = "bus_schedule" + ".jpeg"
         image_path = img_dir / file_name
         pages[0].save(str(image_path), "JPEG")
         print('Converted PDF to Image')
 
 
     except NoSuchElementException:
+        file_name = "bus_schedule" + ".jpeg"
         # 要素が見つからない場合の処理(すでにダウンロード済み、画像もあるはず)
         print('Undefinde new bus notification')
         driver.quit()
-        image_path = Path(imageplace)/"シャトルバス時刻表.jpeg"
+        image_path = Path(imageplace)/file_name
 
     #この時点で画像できてる//ok
+    # ファイルをバイナリモードで開き、内容を読み込む
     return image_path
+    
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -104,6 +107,8 @@ tree = app_commands.CommandTree(client)
 async def on_ready():
     loop.start()
     print("rdy")
+    await tree.sync()#スラッシュコマンドを同期
+
 
 @tasks.loop(hours=24)
 async def loop():
@@ -117,14 +122,33 @@ async def loop():
                     try:
                         await last_message.delete()
                         embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
-                        fname = "シャトルバス時刻表.jpeg"
+                        fname = "bus_schedule.jpeg"
                         file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
                         embed.set_image(url = "attachment://" + fname)
                         await channel.send(file = file,embed = embed)
                     except Exception as e:
                         print(f"Error in guild {guild.name}: {e}")
                 except Exception as e:
-                    print(f"Error in guild {guild.name}: {e}")
+                    try:
+                        embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
+                        fname = "bus_schedule.jpeg"
+                        file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
+                        embed.set_image(url = "attachment://" + fname)
+                        await channel.send(file = file,embed = embed)
+                    except Exception as e:
+                        print(f"Error in guild {guild.name}: {e}")
+
+@tree.command(name="bus",description="bus-scheduleを表示します")
+async def bus_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
+    fname = "bus_schedule.jpeg"
+    await interaction.response.defer()
+    file = discord.File(get_bus_info(), filename = fname, spoiler = False)
+    embed.set_image(url = "attachment://" + fname)
+    await interaction.followup.send( file = file,embed = embed)
+
+
+                    
 
 
 keep_alive.keep_alive()
