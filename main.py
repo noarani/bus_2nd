@@ -48,7 +48,8 @@ def get_bus_info():
     idin.send_keys(id)
     pwin.send_keys(pw)
 
-    driver.find_element(By.CLASS_NAME, "btn").click()#login
+    driver.find_element(By.XPATH, "//input[@value='ログイン']").click()#login
+    
 
     wait = WebDriverWait(driver, 10)
     wait.until(EC.presence_of_all_elements_located)
