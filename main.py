@@ -85,7 +85,7 @@ def get_bus_info():
     pages[0].save(str(image_path), "JPEG")
     print('Converted PDF to Image')
 
-    return image_pathf
+    return image_path
     
 
 intents = discord.Intents.all()
