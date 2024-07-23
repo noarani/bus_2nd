@@ -53,49 +53,36 @@ def get_bus_info():
     wait = WebDriverWait(driver, 10)
     wait.until(EC.presence_of_all_elements_located)
 
-    notificationbtn = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div[1]/div/div/div/div/dl[1]/dd/a/span")
-    notificationbtn.click()#未読連絡開く//ok
+    notificationbtn = driver.find_element(By.XPATH, "/html/body/div/div[1]/div[3]/ul/li[5]/a")
+    notificationbtn.click()#配布物開く//ok
 
     wait.until(EC.presence_of_all_elements_located)
 
-    try:
-        driver.find_element(By.PARTIAL_LINK_TEXT, "シャトルバスダイヤについて").click()#「シャトルバスダイヤについて」の連絡を開く
-        wait.until(EC.presence_of_all_elements_located((By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")))
+    delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+    # 一致したファイルをすべて削除
+    for file in delfiles:
+        os.remove(file)#古いpdfファイルを削除
+    for file in os.scandir(imageplace):
+        os.remove(file.path)#古いimageファイルを削除
+    print('Deleted old bus schedule pdf and image')
 
-        delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
-        # 一致したファイルをすべて削除
-        for file in delfiles:
-            os.remove(file)#古いpdfファイルを削除
-        for file in os.scandir(imageplace):
-            os.remove(file.path)#古いimageファイルを削除
+    bustimepdf = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div/div/div[1]/div/div[2]/div/ul/li/ul[2]/li/a/span")#時刻表ダウンロードボタン位置
+    bustimepdf.click()#download
+    time.sleep(10)
+    driver.quit()
+    print('Downloaded bus schedule pdf')
 
-        bustimepdf = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")
-        bustimepdf.click()#download
-        time.sleep(10)
-        driver.quit()
-        print('Downloaded new bus notification')
+    # PDF to Image
+    pdf_files = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+    img_dir=Path(imageplace)
+    for pdf_path in pdf_files:
+        pages = convert_from_path(pdf_path, dpi=150)
 
-        # PDF to Image
-        pdf_files = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
-        img_dir=Path(imageplace)
-        for pdf_path in pdf_files:
-            pages = convert_from_path(pdf_path, dpi=150)
+    file_name = "bus_schedule" + ".jpeg"
+    image_path = img_dir / file_name
+    pages[0].save(str(image_path), "JPEG")
+    print('Converted PDF to Image')
 
-        file_name = "bus_schedule" + ".jpeg"
-        image_path = img_dir / file_name
-        pages[0].save(str(image_path), "JPEG")
-        print('Converted PDF to Image')
-
-
-    except NoSuchElementException:
-        file_name = "bus_schedule" + ".jpeg"
-        # 要素が見つからない場合の処理(すでにダウンロード済み、画像もあるはず)
-        print('Undefinde new bus notification')
-        driver.quit()
-        image_path = Path(imageplace)/file_name
-
-    #この時点で画像できてる//ok
-    # ファイルをバイナリモードで開き、内容を読み込む
     return image_path
     
 
