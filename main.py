@@ -76,6 +76,7 @@ def get_bus_info():
     # PDF to Image
     pdf_files = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
     img_dir=Path(imageplace)
+    pages = None
     for pdf_path in pdf_files:
         pages = convert_from_path(pdf_path, dpi=150)
 
@@ -84,7 +85,7 @@ def get_bus_info():
     pages[0].save(str(image_path), "JPEG")
     print('Converted PDF to Image')
 
-    return image_path
+    return image_pathf
     
 
 intents = discord.Intents.all()
