@@ -128,9 +128,9 @@ async def loop():
 
 @tree.command(name="bus",description="bus-scheduleを表示します")
 async def bus_command(interaction: discord.Interaction):
+    await interaction.response.defer()
     embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
     fname = "bus_schedule.jpeg"
-    await interaction.response.defer()
     file = discord.File(get_bus_info(), filename = fname, spoiler = False)
     embed.set_image(url = "attachment://" + fname)
     await interaction.followup.send( file = file,embed = embed)
