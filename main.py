@@ -58,16 +58,18 @@ def get_bus_info():
     idin.send_keys(id)
     pwin.send_keys(pw)
 
-    driver.find_element(By.CSS_SELECTOR, ".btn").click()#login
+    driver.find_element(By.XPATH, "//input[@value='ログイン']").click()#login
     
 
-    
+    wait = WebDriverWait(driver, 10)
     wait.until(EC.presence_of_all_elements_located)
 
     handoutbtn = driver.find_element(By.XPATH,"/html/body/div/div[1]/div[3]/ul/li[2]/a")
 
-    notificationbtn = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div[1]/div/div/div/div/dl[1]/dd/a/span")
-    notificationbtn.click()#未読連絡開く//ok
+    #handoutbtn = driver.find_element(By.XPATH,"/html/body/div/div[1]/div[3]/ul/li[2]/a")
+
+    notificationbtn = driver.find_element(By.XPATH, "/html/body/div/div[1]/div[3]/ul/li[5]/a")
+    notificationbtn.click()#配布物開く//ok
 
     wait.until(EC.presence_of_all_elements_located)
 
@@ -77,12 +79,13 @@ def get_bus_info():
         driver.find_element(By.PARTIAL_LINK_TEXT, "シャトルバスダイヤについて").click()#「シャトルバスダイヤについて」の連絡を開く
         wait.until(EC.presence_of_all_elements_located)
 
-        delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
-        # 一致したファイルをすべて削除
-        for file in delfiles:
-            os.remove(file)#古いpdfファイルを削除
-        for file in os.scandir(imageplace):
-            os.remove(file.path)#古いimageファイルを削除
+    delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+    # 一致したファイルをすべて削除
+    for file in delfiles:
+        os.remove(file)#古いpdfファイルを削除
+    for file in os.scandir(imageplace):
+        os.remove(file.path)#古いimageファイルを削除
+    print('Deleted old bus schedule pdf and image')
 
         bustimepdf = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")
         bustimepdf.click()#download
@@ -163,9 +166,9 @@ async def bus_command(interaction: discord.Interaction):
 
     global previous_message_id
     
+    await interaction.response.defer()
     embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
     fname = "bus_schedule.jpeg"
-    await interaction.response.defer()
     file = discord.File(get_bus_info(), filename = fname, spoiler = False)
     embed.set_image(url = "attachment://" + fname)
 
