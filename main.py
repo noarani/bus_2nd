@@ -79,13 +79,13 @@ def get_bus_info():
         driver.find_element(By.PARTIAL_LINK_TEXT, "シャトルバスダイヤについて").click()#「シャトルバスダイヤについて」の連絡を開く
         wait.until(EC.presence_of_all_elements_located)
 
-    delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
-    # 一致したファイルをすべて削除
-    for file in delfiles:
-        os.remove(file)#古いpdfファイルを削除
-    for file in os.scandir(imageplace):
-        os.remove(file.path)#古いimageファイルを削除
-    print('Deleted old bus schedule pdf and image')
+        delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+        # 一致したファイルをすべて削除
+        for file in delfiles:
+            os.remove(file)#古いpdfファイルを削除
+        for file in os.scandir(imageplace):
+            os.remove(file.path)#古いimageファイルを削除
+        print('Deleted old bus schedule pdf and image')
 
         bustimepdf = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")
         bustimepdf.click()#download
