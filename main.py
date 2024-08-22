@@ -64,11 +64,11 @@ def get_bus_info():
     wait = WebDriverWait(driver, 10)
     wait.until(EC.presence_of_all_elements_located)
 
-    handoutbtn = driver.find_element(By.XPATH,"/html/body/div/div[1]/div[3]/ul/li[2]/a")
+    handoutbtn = driver.find_element(By.LINK_TEXT,"配布物")
 
     #handoutbtn = driver.find_element(By.XPATH,"/html/body/div/div[1]/div[3]/ul/li[2]/a")
 
-    notificationbtn = driver.find_element(By.XPATH, "/html/body/div/div[1]/div[3]/ul/li[5]/a")
+    notificationbtn = driver.find_element(By.LINK_TEXT, "連絡")
     notificationbtn.click()#配布物開く//ok
 
     wait.until(EC.presence_of_all_elements_located)
@@ -76,7 +76,7 @@ def get_bus_info():
     file_name = "bus_schedule" + ".jpeg"
 
     try:
-        driver.find_element(By.PARTIAL_LINK_TEXT, "シャトルバスダイヤについて").click()#「シャトルバスダイヤについて」の連絡を開く
+        driver.find_element(By.XPATH,"//span[contains(text(),'シャトルバスダイヤについて')]").click()#「シャトルバスダイヤについて」の連絡を開く
         wait.until(EC.presence_of_all_elements_located)
 
         delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
@@ -133,10 +133,10 @@ async def on_ready():
     await tree.sync()#スラッシュコマンドを同期
 
 
-@tasks.loop(hours=1)
+@tasks.loop(minutes=3)
 async def loop():
     now = datetime.now(ZoneInfo("Asia/Tokyo"))
-    if now.weekday()==0 and now.hour==6:
+    if now.weekday()==3 and now.hour==13:
         for guild in client.guilds:
             channel = discord.utils.get(guild.channels, name="バス")
             if channel:
