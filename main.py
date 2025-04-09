@@ -58,7 +58,7 @@ def get_bus_info():
     idin.send_keys(id)
     pwin.send_keys(pw)
 
-    driver.find_element(By.XPATH, "//input[@value='ログイン']").click()#login
+    driver.find_element(By.XPATH, "//*[@id=\"login\"]").click()#login
     
 
     wait = WebDriverWait(driver, 10)
@@ -69,7 +69,12 @@ def get_bus_info():
     #handoutbtn = driver.find_element(By.XPATH,"/html/body/div/div[1]/div[3]/ul/li[2]/a")
 
     notificationbtn = driver.find_element(By.LINK_TEXT, "連絡")
-    notificationbtn.click()#配布物開く//ok
+    notificationbtn.click()#連絡開く//ok
+
+    wait.until(EC.presence_of_all_elements_located)
+
+    Administrativebtn = driver.find_element(By.XPATH,"/html/body/div[1]/div/section/div[4]/div/main/form/section/div[2]/div[3]/div/div/label[5]")
+    Administrativebtn.click()#事務連絡開く//ok
 
     wait.until(EC.presence_of_all_elements_located)
 
@@ -87,7 +92,7 @@ def get_bus_info():
             os.remove(file.path)#古いimageファイルを削除
         print('Deleted old bus schedule pdf and image')
 
-        bustimepdf = driver.find_element(By.XPATH, "/html/body/div/div[3]/div/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[2]/td[2]/div/ul/li/a")
+        bustimepdf = driver.find_element(By.XPATH, "/html/body/div[1]/div/section/div[4]/div/main/section/div[2]/div/div/div/div[3]/ul/li/a")
         bustimepdf.click()#download
 
         time.sleep(10)#ダウンロード待ち
@@ -137,16 +142,16 @@ async def loop():
 
     @tasks.loop(hours=1)
     async def loop():
-    
+
         global previous_message_id
-    
+
         now = datetime.now(ZoneInfo("Asia/Tokyo"))
         if now.weekday() == 5:  # 土曜日の場合
             embed = discord.Embed()
             fname = "シャトルバス時刻表.jpeg"
             file = discord.File(fp=get_bus_info(), filename=fname, spoiler=False)
             embed.set_image(url="attachment://" + fname)
-    
+
             # ここで特定のチャンネルにメッセージを送信
             for guild in client.guilds:
                 channel = discord.utils.get(guild.channels, name="バス")
