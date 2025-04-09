@@ -17,10 +17,10 @@ import time
 from pdf2image import convert_from_path
 import glob
 import keep_alive
-import platform
 
-# 環境変数を設定
-os.environ["WDM_ARCH"] = "x64" if platform.architecture()[0] == "64bit" else "x86"
+
+
+
 
 load_dotenv('.env')
 id = os.getenv('ID')
@@ -43,8 +43,7 @@ def get_bus_info():
     })
 
     # ChromeDriverのパスを取得
-    chrome_service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=chrome_service, options=options)
+    driver = webdriver.Chrome()
 
     print('ChromeDriver started')
 
