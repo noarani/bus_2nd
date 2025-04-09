@@ -38,15 +38,16 @@ def get_bus_info():
     "plugins.always_open_pdf_externally": True  # PDF ファイルをブラウザで開かずに直接ダウンロードする
     })
 
-    webdriver_path = ChromeDriverManager().install()
-    if os.path.splitext(webdriver_path)[1] != '.exe':
-        webdriver_dir_path = os.path.dirname(webdriver_path)
-        webdriver_path = os.path.join(webdriver_dir_path, 'chromedriver.exe')
-    chrome_service = Service(executable_path=webdriver_path)
+    # ChromeDriverのパスを取得
+    chrome_service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=chrome_service, options=options)
+
+    print('ChromeDriver started')
 
     driver.minimize_window()
     driver.get('https://portal.mc.chitose.ac.jp/portal/?0')
+
+    print('Accessed portal')
 
     wait = WebDriverWait(driver, 10)
 
