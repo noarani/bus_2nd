@@ -182,17 +182,22 @@ async def bus_command(interaction: discord.Interaction):
     # 新しいメッセージIDを保存
     previous_message_id = message.id
 
-@client.event
-async def on_message(message):
-    if message.content == '/cleanup':
-        if message.author.guild_permissions.administrator:
-            await message.channel.purge()
-            await message.channel.send('塵一つ残らないね！')
-        else:
-            await message.channel.send('何様のつもり？')
+#@client.event
+#async def on_message(message):
+#    if message.content == '/cleanup':
+#        if message.author.guild_permissions.administrator:
+#            await message.channel.purge()
+#            await message.channel.send('塵一つ残らないね！')
+#        else:
+#            await message.channel.send('何様のつもり？')
 
-
-
+@tree.command(name="cleanup",description="チャンネルのメッセージを削除します")
+async def cleanup_command(interaction: discord.Interaction):
+    if interaction.user.guild_permissions.administrator:
+        await interaction.channel.purge()
+        await interaction.response.send_message('塵一つ残らないね！')
+    else:
+        await interaction.response.send_message('何様のつもり？')
                     
 
 
