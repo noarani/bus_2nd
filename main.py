@@ -17,6 +17,10 @@ import time
 from pdf2image import convert_from_path
 import glob
 import keep_alive
+import platform
+
+# 環境変数を設定
+os.environ["WDM_ARCH"] = "x64" if platform.architecture()[0] == "64bit" else "x86"
 
 load_dotenv('.env')
 id = os.getenv('ID')
@@ -165,7 +169,12 @@ async def bus_command(interaction: discord.Interaction):
 
     global previous_message_id
     
-    await interaction.response.defer()
+    try:
+        await interaction.response.defer()  # 応答を遅延
+    except discord.errors.NotFound:
+        print("Interaction not found or expired.")
+        return
+    
     embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
     fname = "bus_schedule.jpeg"
     file = discord.File(get_bus_info(), filename = fname, spoiler = False)
