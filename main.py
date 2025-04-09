@@ -135,23 +135,23 @@ async def on_ready():
 @tasks.loop(hours=24)
 async def loop():
 
-@tasks.loop(hours=1)
-async def loop():
-
-    global previous_message_id
-
-    now = datetime.now(ZoneInfo("Asia/Tokyo"))
-    if now.weekday() == 5:  # 土曜日の場合
-        embed = discord.Embed()
-        fname = "シャトルバス時刻表.jpeg"
-        file = discord.File(fp=get_bus_info(), filename=fname, spoiler=False)
-        embed.set_image(url="attachment://" + fname)
-
-        # ここで特定のチャンネルにメッセージを送信
-        for guild in client.guilds:
-            channel = discord.utils.get(guild.channels, name="バス")
-            if channel:
-                await channel.send(embed=embed, file=file)
+    @tasks.loop(hours=1)
+    async def loop():
+    
+        global previous_message_id
+    
+        now = datetime.now(ZoneInfo("Asia/Tokyo"))
+        if now.weekday() == 5:  # 土曜日の場合
+            embed = discord.Embed()
+            fname = "シャトルバス時刻表.jpeg"
+            file = discord.File(fp=get_bus_info(), filename=fname, spoiler=False)
+            embed.set_image(url="attachment://" + fname)
+    
+            # ここで特定のチャンネルにメッセージを送信
+            for guild in client.guilds:
+                channel = discord.utils.get(guild.channels, name="バス")
+                if channel:
+                    await channel.send(embed=embed, file=file)
 
 
 @tree.command(name="bus",description="bus-scheduleを表示します")
