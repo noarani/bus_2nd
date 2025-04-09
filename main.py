@@ -107,15 +107,19 @@ async def on_ready():
     await tree.sync()#スラッシュコマンドを同期
 
 @tasks.loop(hours=24)
-async def loop(interaction: discord.Interaction):
+async def loop():
     now = datetime.now(ZoneInfo("Asia/Tokyo"))
-    if now.weekday()==5:
+    if now.weekday() == 5:  # 土曜日の場合
         embed = discord.Embed()
         fname = "シャトルバス時刻表.jpeg"
-        await interaction.response.defer()
-        file = discord.File(fp = get_bus_info(), filename = fname, spoiler = False)
-        embed.set_image(url = "attachment://" + fname)
-        await interaction.followup.send(embed = embed, file = file)
+        file = discord.File(fp=get_bus_info(), filename=fname, spoiler=False)
+        embed.set_image(url="attachment://" + fname)
+
+        # ここで特定のチャンネルにメッセージを送信
+        for guild in client.guilds:
+            channel = discord.utils.get(guild.channels, name="バス")
+            if channel:
+                await channel.send(embed=embed, file=file)
 
 
 @tree.command(name="bus",description="bus-scheduleを表示します")
@@ -129,6 +133,7 @@ async def bus_command(interaction: discord.Interaction):
 
 keep_alive.keep_alive()
 client.run(TOKEN)
+
 
 
 
