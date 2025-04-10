@@ -27,7 +27,7 @@ id = os.getenv('ID')
 pw = os.getenv('PW')
 downloadplace = str(Path(os.getenv('DOWNLOAD_PLACE')).resolve())#相対パスを絶対パスに変換
 imageplace = str(Path(os.getenv('IMAGE_PLACE')).resolve())#相対パスを絶対パスに変換
-
+poppler_path = str(Path(os.getenv('POPPLER_PATH')).resolve())#相対パスを絶対パスに変換
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 def get_bus_info():
@@ -43,11 +43,11 @@ def get_bus_info():
     })
 
     # ChromeDriverのパスを取得
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(options=options)
 
     print('ChromeDriver started')
 
-    driver.minimize_window()
+    driver.maximize_window()
     driver.get('https://portal.mc.chitose.ac.jp/portal/?0')
 
     print('Accessed portal')
@@ -56,37 +56,54 @@ def get_bus_info():
 
     wait.until(EC.presence_of_all_elements_located)
 
-    idin = driver.find_element(By.XPATH, "//*[@id=\"userID\"]")
-    pwin = driver.find_element(By.XPATH, "//*[@id=\"password\"]")
+    idin = driver.find_element(By.CSS_SELECTOR, "#username")
+    pwin = driver.find_element(By.CSS_SELECTOR, "#password")
 
     idin.send_keys(id)
     pwin.send_keys(pw)
 
-    driver.find_element(By.XPATH, "//*[@id=\"login\"]").click()#login
+    
+
+    login_button = driver.find_element(By.CSS_SELECTOR,"#login")#login
+    driver.execute_script("arguments[0].scrollIntoView(true);", login_button)
+    driver.execute_script("arguments[0].click();", login_button)
     
 
     wait = WebDriverWait(driver, 10)
     wait.until(EC.presence_of_all_elements_located)
 
-    handoutbtn = driver.find_element(By.LINK_TEXT,"配布物")
+    # handoutbtn = driver.find_element(By.LINK_TEXT,"配布物")
 
     #handoutbtn = driver.find_element(By.XPATH,"/html/body/div/div[1]/div[3]/ul/li[2]/a")
 
-    notificationbtn = driver.find_element(By.LINK_TEXT, "連絡")
-    notificationbtn.click()#連絡開く//ok
+    # notificationbtn = driver.find_element(By.CSS_SELECTOR, "#menu > div.offcanvas-body.d-block.p-0 > ul > li:nth-child(2) > a")
+    # notificationbtn.click()#連絡開く//ok
+    driver.get("https://portal.mc.chitose.ac.jp/portal/OfficeMemo/ViewReceivedTitles?currentPage=1&filter=all&searchKeyword=&c_filter=office")
 
     wait.until(EC.presence_of_all_elements_located)
 
-    Administrativebtn = driver.find_element(By.XPATH,"/html/body/div[1]/div/section/div[4]/div/main/form/section/div[2]/div[3]/div/div/label[5]")
-    Administrativebtn.click()#事務連絡開く//ok
-
-    wait.until(EC.presence_of_all_elements_located)
 
     file_name = "bus_schedule" + ".jpeg"
 
     try:
-        driver.find_element(By.XPATH,"//span[contains(text(),'シャトルバスダイヤについて')]").click()#「シャトルバスダイヤについて」の連絡を開く
+
+        print('Clicked notification')
+        elements = driver.find_elements(By.CSS_SELECTOR, "div.card.mb-3.flex-row")
+        bus_schedule_element = None
+    
+        for element in elements:
+            
+            text_element = element.find_element(By.CSS_SELECTOR, "a[href]")
+            print(text_element.text)
+            if "シャトルバスダイヤについて" in text_element.text:
+                bus_schedule_element = text_element  
+                break
+        print("! " + bus_schedule_element.text)
+        driver.execute_script("arguments[0].scrollIntoView(true);", bus_schedule_element)  # 要素を画面内にスクロール
+        driver.execute_script("arguments[0].click();", bus_schedule_element)
         wait.until(EC.presence_of_all_elements_located)
+
+        print('Clicked bus schedule notification')
 
         delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
         # 一致したファイルをすべて削除
@@ -96,8 +113,8 @@ def get_bus_info():
             os.remove(file.path)#古いimageファイルを削除
         print('Deleted old bus schedule pdf and image')
 
-        bustimepdf = driver.find_element(By.XPATH, "/html/body/div[1]/div/section/div[4]/div/main/section/div[2]/div/div/div/div[3]/ul/li/a")
-        bustimepdf.click()#download
+        bustimepdf = driver.find_element(By.CSS_SELECTOR, "a[class='filename'][href]")
+        driver.execute_script("arguments[0].click();", bustimepdf)
 
         time.sleep(10)#ダウンロード待ち
         driver.quit()
@@ -111,7 +128,8 @@ def get_bus_info():
             pdf_file = pdf_file[0]
 
         img_dir=Path(imageplace)
-        page = convert_from_path(pdf_file, dpi=150)
+        
+        page = convert_from_path(pdf_file, dpi=300 , poppler_path=poppler_path)
 
         image_path = img_dir / file_name
         page[0].save(str(image_path), "JPEG")
