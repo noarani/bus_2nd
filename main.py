@@ -230,9 +230,9 @@ async def cleanup_command(interaction: discord.Interaction):
     
     if interaction.user.guild_permissions.administrator:
         await interaction.channel.purge()
-        await interaction.response.send_message('塵一つ残らないね！')
+        await interaction.followup.send('塵一つ残らないね！')
     else:
-        await interaction.response.send_message('何様のつもり？')
+        await interaction.followup.send('何様のつもり？')
                     
 
 
