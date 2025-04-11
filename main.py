@@ -169,7 +169,7 @@ async def loop():
         global previous_message_id
 
         now = datetime.now(ZoneInfo("Asia/Tokyo"))
-        if now.weekday() == 5:  # 土曜日の場合
+        if now.weekday() == 5 or 6 or 0:  # 土曜日か日曜日か月曜日の場合
             embed = discord.Embed()
             fname = "シャトルバス時刻表.jpeg"
             file = discord.File(fp=get_bus_info(), filename=fname, spoiler=False)
