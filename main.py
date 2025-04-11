@@ -146,91 +146,91 @@ def get_bus_info():
     #この時点で画像できてる//ok
     return image_path
     
-get_bus_info()
-
-# intents = discord.Intents.all()
-# client = discord.Client(intents=intents)
-# tree = app_commands.CommandTree(client)
-
-# previous_message_id = None
-
-# @client.event
-# async def on_ready():
-#     #loop.start()
-#     print("rdy")
-#     await tree.sync()#スラッシュコマンドを同期
-
-# @tasks.loop(hours=24)
-# async def loop():
-
-#     @tasks.loop(hours=1)
-#     async def loop():
-
-#         global previous_message_id
-
-#         now = datetime.now(ZoneInfo("Asia/Tokyo"))
-#         if now.weekday() == 5:  # 土曜日の場合
-#             embed = discord.Embed()
-#             fname = "シャトルバス時刻表.jpeg"
-#             file = discord.File(fp=get_bus_info(), filename=fname, spoiler=False)
-#             embed.set_image(url="attachment://" + fname)
-
-#             # ここで特定のチャンネルにメッセージを送信
-#             for guild in client.guilds:
-#                 channel = discord.utils.get(guild.channels, name="バス")
-#                 if channel:
-#                     await channel.send(embed=embed, file=file)
 
 
-# @tree.command(name="bus",description="bus-scheduleを表示します")
-# async def bus_command(interaction: discord.Interaction):
+intents = discord.Intents.all()
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 
-#     global previous_message_id
+previous_message_id = None
+
+@client.event
+async def on_ready():
+    #loop.start()
+    print("rdy")
+    await tree.sync()#スラッシュコマンドを同期
+
+@tasks.loop(hours=24)
+async def loop():
+
+    @tasks.loop(hours=1)
+    async def loop():
+
+        global previous_message_id
+
+        now = datetime.now(ZoneInfo("Asia/Tokyo"))
+        if now.weekday() == 5:  # 土曜日の場合
+            embed = discord.Embed()
+            fname = "シャトルバス時刻表.jpeg"
+            file = discord.File(fp=get_bus_info(), filename=fname, spoiler=False)
+            embed.set_image(url="attachment://" + fname)
+
+            # ここで特定のチャンネルにメッセージを送信
+            for guild in client.guilds:
+                channel = discord.utils.get(guild.channels, name="バス")
+                if channel:
+                    await channel.send(embed=embed, file=file)
+
+
+@tree.command(name="bus",description="bus-scheduleを表示します")
+async def bus_command(interaction: discord.Interaction):
+
+    global previous_message_id
     
-#     try:
-#         await interaction.response.defer()  # 応答を遅延
-#     except discord.errors.NotFound:
-#         print("Interaction not found or expired.")
-#         return
+    try:
+        await interaction.response.defer()  # 応答を遅延
+    except discord.errors.NotFound:
+        print("Interaction not found or expired.")
+        return
     
-#     embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
-#     fname = "bus_schedule.jpeg"
-#     file = discord.File(get_bus_info(), filename = fname, spoiler = False)
-#     embed.set_image(url = "attachment://" + fname)
+    embed = discord.Embed(title="シャトルバス時刻表", color=0x00ff00)
+    fname = "bus_schedule.jpeg"
+    file = discord.File(get_bus_info(), filename = fname, spoiler = False)
+    embed.set_image(url = "attachment://" + fname)
 
-#     if previous_message_id:
-#         try:
-#             previous_message = await interaction.channel.fetch_message(previous_message_id)
-#             await previous_message.delete()
-#         except discord.NotFound:
-#             pass  # メッセージが見つからない場合は無視
+    if previous_message_id:
+        try:
+            previous_message = await interaction.channel.fetch_message(previous_message_id)
+            await previous_message.delete()
+        except discord.NotFound:
+            pass  # メッセージが見つからない場合は無視
 
-#     # 新しいメッセージを送信
-#     message = await interaction.followup.send(file=file, embed=embed)
-#     # 新しいメッセージIDを保存
-#     previous_message_id = message.id
+    # 新しいメッセージを送信
+    message = await interaction.followup.send(file=file, embed=embed)
+    # 新しいメッセージIDを保存
+    previous_message_id = message.id
 
-# #@client.event
-# #async def on_message(message):
-# #    if message.content == '/cleanup':
-# #        if message.author.guild_permissions.administrator:
-# #            await message.channel.purge()
-# #            await message.channel.send('塵一つ残らないね！')
-# #        else:
-# #            await message.channel.send('何様のつもり？')
+#@client.event
+#async def on_message(message):
+#    if message.content == '/cleanup':
+#        if message.author.guild_permissions.administrator:
+#            await message.channel.purge()
+#            await message.channel.send('塵一つ残らないね！')
+#        else:
+#            await message.channel.send('何様のつもり？')
 
-# @tree.command(name="cleanup",description="チャンネルのメッセージを削除します")
-# async def cleanup_command(interaction: discord.Interaction):
-#     if interaction.user.guild_permissions.administrator:
-#         await interaction.channel.purge()
-#         await interaction.response.send_message('塵一つ残らないね！')
-#     else:
-#         await interaction.response.send_message('何様のつもり？')
+@tree.command(name="cleanup",description="チャンネルのメッセージを削除します")
+async def cleanup_command(interaction: discord.Interaction):
+    if interaction.user.guild_permissions.administrator:
+        await interaction.channel.purge()
+        await interaction.response.send_message('塵一つ残らないね！')
+    else:
+        await interaction.response.send_message('何様のつもり？')
                     
 
 
-# keep_alive.keep_alive()
-# client.run(TOKEN)
+keep_alive.keep_alive()
+client.run(TOKEN)
 
 
 
