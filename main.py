@@ -221,6 +221,13 @@ async def bus_command(interaction: discord.Interaction):
 
 @tree.command(name="cleanup",description="チャンネルのメッセージを削除します")
 async def cleanup_command(interaction: discord.Interaction):
+
+    try:
+        await interaction.response.defer()  # 応答を遅延
+    except discord.errors.NotFound:
+        print("Interaction not found or expired.")
+        return
+    
     if interaction.user.guild_permissions.administrator:
         await interaction.channel.purge()
         await interaction.response.send_message('塵一つ残らないね！')
