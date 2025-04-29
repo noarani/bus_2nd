@@ -125,8 +125,8 @@ def get_bus_info():
         print(pdf_file)
 
     # ここでpdf_fileがリストである場合、最初の要素を取得
-        # if isinstance(pdf_file, list):
-        #     pdf_file = pdf_file[0]
+        if isinstance(pdf_file, list):
+            pdf_file = pdf_file[0]
 
         img_dir=Path(imageplace)
         
