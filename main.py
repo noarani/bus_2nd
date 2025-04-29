@@ -94,11 +94,11 @@ def get_bus_info():
         for element in elements:
             
             text_element = element.find_element(By.CSS_SELECTOR, "a[href]")
-            print(text_element.text)
+            
             if "シャトルバスダイヤについて" in text_element.text:
                 bus_schedule_element = text_element  
                 break
-        print("! " + bus_schedule_element.text)
+        
         driver.execute_script("arguments[0].scrollIntoView(true);", bus_schedule_element)  # 要素を画面内にスクロール
         driver.execute_script("arguments[0].click();", bus_schedule_element)
         wait.until(EC.presence_of_all_elements_located)
@@ -122,6 +122,7 @@ def get_bus_info():
 
         # PDF to Image
         pdf_file = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+        print(pdf_file)
 
     # ここでpdf_fileがリストである場合、最初の要素を取得
         # if isinstance(pdf_file, list):
@@ -147,6 +148,7 @@ def get_bus_info():
     return image_path
     
 
+
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
@@ -168,7 +170,7 @@ async def loop():
         global previous_message_id
 
         now = datetime.now(ZoneInfo("Asia/Tokyo"))
-        if now.weekday() == 5:  # 土曜日の場合
+        if now.weekday() in (5, 6, 0):  # 土曜日か日曜日か月曜日の場合
             embed = discord.Embed()
             fname = "シャトルバス時刻表.jpeg"
             file = discord.File(fp=get_bus_info(), filename=fname, spoiler=False)
@@ -220,11 +222,25 @@ async def bus_command(interaction: discord.Interaction):
 
 @tree.command(name="cleanup",description="チャンネルのメッセージを削除します")
 async def cleanup_command(interaction: discord.Interaction):
+
+    try:
+        await interaction.response.defer()  # 応答を遅延
+    except discord.errors.NotFound:
+        print("Interaction not found or expired.")
+        return
+    
     if interaction.user.guild_permissions.administrator:
-        await interaction.channel.purge()
-        await interaction.response.send_message('塵一つ残らないね！')
+        try:
+            # メッセージを削除
+            await interaction.channel.purge()
+            # 削除完了後にメッセージを送信
+            await interaction.followup.send('塵一つ残らないね！')
+        except discord.Forbidden:
+            # ボットに権限がない場合
+            await interaction.followup.send('ボットにメッセージ削除の権限がありません。')
     else:
-        await interaction.response.send_message('何様のつもり？')
+        # 実行者が管理者でない場合
+        await interaction.followup.send('何様のつもり？')
                     
 
 
