@@ -124,8 +124,8 @@ def get_bus_info():
         pdf_file = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
 
     # ここでpdf_fileがリストである場合、最初の要素を取得
-        if isinstance(pdf_file, list):
-            pdf_file = pdf_file[0]
+        # if isinstance(pdf_file, list):
+        #     pdf_file = pdf_file[0]
 
         img_dir=Path(imageplace)
         
