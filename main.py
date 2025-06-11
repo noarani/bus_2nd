@@ -88,16 +88,16 @@ def get_bus_info():
     try:
 
         print('Clicked notification')
-        elements = driver.find_elements(By.CSS_SELECTOR, "div.card.mb-3.flex-row")
+        links = driver.find_elements(By.XPATH, "//a[contains(text(), 'シャトルバスについて')]")
         bus_schedule_element = None
-    
-        for element in elements:
-            
-            text_element = element.find_element(By.CSS_SELECTOR, "a[href]")
-            
-            if "シャトルバスダイヤについて" in text_element.text:
-                bus_schedule_element = text_element  
+        for link in links:
+            if "シャトルバスについて" in link.text:
+                bus_schedule_element = link
                 break
+
+        if bus_schedule_element is None:
+            raise NoSuchElementException("バスダイヤのお知らせが見つかりませんでした。")
+
         
         driver.execute_script("arguments[0].scrollIntoView(true);", bus_schedule_element)  # 要素を画面内にスクロール
         driver.execute_script("arguments[0].click();", bus_schedule_element)
@@ -148,6 +148,8 @@ def get_bus_info():
     return image_path
     
 
+
+# get_bus_info()#初回実行
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
