@@ -235,11 +235,8 @@ async def cleanup_command(interaction: discord.Interaction):
 
     if interaction.user.guild_permissions.administrator:
         try:
-            # コマンド実行メッセージ以外を削除
-            def not_command_message(msg):
-                return msg.id != interaction.message.id
-
-            await interaction.channel.purge(check=not_command_message)
+            # 全メッセージを削除
+            await interaction.channel.purge()
             await interaction.followup.send('塵一つ残らないね！')
         except discord.Forbidden:
             await interaction.followup.send('ボットにメッセージ削除の権限がありません。')
