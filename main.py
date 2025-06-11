@@ -108,7 +108,7 @@ def get_bus_info():
 
         print('Clicked bus schedule notification')
 
-        delfiles = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+        delfiles = glob.glob(downloadplace+"*シャトルバス時刻表*.pdf")
         # 一致したファイルをすべて削除
         for file in delfiles:
             os.remove(file)#古いpdfファイルを削除
@@ -124,16 +124,16 @@ def get_bus_info():
         print('Downloaded new bus notification')
 
         # PDF to Image
-        pdf_file = glob.glob(downloadplace+"\\*シャトルバス時刻表*.pdf")
+        pdf_file = glob.glob(os.path.join(downloadplace, "*シャトルバス時刻表*.pdf"))
         print(pdf_file)
 
-    # ここでpdf_fileがリストである場合、最初の要素を取得
-        if isinstance(pdf_file, list):
-            pdf_file = pdf_file[0]
+        if not pdf_file:
+            raise NoSuchElementException("PDFファイルが見つかりませんでした。")
 
-        img_dir=Path(imageplace)
-        
-        page = convert_from_path(pdf_file, dpi=300 , poppler_path=poppler_path)
+        pdf_file = pdf_file[0]
+
+        img_dir = Path(imageplace)
+        page = convert_from_path(pdf_file, dpi=300, poppler_path=poppler_path)
 
         image_path = img_dir / file_name
         page[0].save(str(image_path), "JPEG")
