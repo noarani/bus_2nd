@@ -7,5 +7,6 @@ RUN pip install -r requirements.txt
 RUN sh render-build.sh
 RUN export PATH="${PATH}:/opt/render/project/.render/chrome/opt/google/chrome"
 RUN apt -f install
+RUN apt-get update && apt-get install -y poppler-utils
 COPY . /bot
 CMD python main.py
