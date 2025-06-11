@@ -225,28 +225,26 @@ async def bus_command(interaction: discord.Interaction):
 #        else:
 #            await message.channel.send('何様のつもり？')
 
-@tree.command(name="cleanup",description="チャンネルのメッセージを削除します")
+@tree.command(name="cleanup", description="チャンネルのメッセージを削除します")
 async def cleanup_command(interaction: discord.Interaction):
-
     try:
-        await interaction.response.defer()  # 応答を遅延
+        await interaction.response.defer()
     except discord.errors.NotFound:
         print("Interaction not found or expired.")
         return
-    
+
     if interaction.user.guild_permissions.administrator:
         try:
-            # メッセージを削除
-            await interaction.channel.purge()
-            # 削除完了後にメッセージを送信
+            # コマンド実行メッセージ以外を削除
+            def not_command_message(msg):
+                return msg.id != interaction.message.id
+
+            await interaction.channel.purge(check=not_command_message)
             await interaction.followup.send('塵一つ残らないね！')
         except discord.Forbidden:
-            # ボットに権限がない場合
             await interaction.followup.send('ボットにメッセージ削除の権限がありません。')
     else:
-        # 実行者が管理者でない場合
         await interaction.followup.send('何様のつもり？')
-                    
 
 
 keep_alive.keep_alive()
