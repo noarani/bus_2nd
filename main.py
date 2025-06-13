@@ -17,6 +17,7 @@ import time
 from pdf2image import convert_from_path
 import glob
 import platform
+from server import server_thread
 
 
 
@@ -242,5 +243,5 @@ async def cleanup_command(interaction: discord.Interaction):
     else:
         await interaction.followup.send('何様のつもり？')
 
-
+server_thread()
 client.run(TOKEN)
