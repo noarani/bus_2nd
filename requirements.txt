@@ -4,3 +4,5 @@ pdf2image==1.17.0
 python-dotenv==1.0.1
 selenium==4.31.0
 webdriver_manager==4.0.1
+fastapi
+uvicorn[standard]

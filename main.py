@@ -16,7 +16,6 @@ from pathlib import Path
 import time
 from pdf2image import convert_from_path
 import glob
-import keep_alive
 import platform
 
 
