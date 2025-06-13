@@ -243,5 +243,4 @@ async def cleanup_command(interaction: discord.Interaction):
         await interaction.followup.send('何様のつもり？')
 
 
-keep_alive.keep_alive()
 client.run(TOKEN)
